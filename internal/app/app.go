@@ -2,6 +2,10 @@ package app
 
 import (
 	grpcapp "TrueToDoList/internal/app/grpc"
+	todos "TrueToDoList/internal/service/todo"
+	"TrueToDoList/storage/postgresql"
+	"context"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 )
 
@@ -10,13 +14,18 @@ type App struct {
 }
 
 func New(
+	ctx context.Context,
 	log *slog.Logger,
 	grpcPort int,
 	apiPort int,
-	storagePath string,
+	pool *pgxpool.Pool,
 ) *App {
-	grpcServ := grpcapp.New(log, grpcPort)
-
+	storage, err := postgresql.New(ctx, pool)
+	if err != nil {
+		panic(err)
+	}
+	todo := todos.New(log, storage)
+	grpcServ := grpcapp.New(log, grpcPort, todo)
 	return &App{
 		GRPCServer: grpcServ,
 	}

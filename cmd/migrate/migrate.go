@@ -19,7 +19,7 @@ func main() {
 	dsn := os.Getenv("DB_DSN")
 
 	fmt.Println(dsn)
-	m, err := migrate.New("file://migrations/", dsn)
+	m, err := migrate.New("file://migrations", dsn)
 	if err != nil {
 		panic(err)
 	}

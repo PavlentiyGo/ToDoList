@@ -17,9 +17,10 @@ type App struct {
 func New(
 	log *slog.Logger,
 	port int,
+	todo tododata.ToDoData,
 ) *App {
 	gRPCServer := grpc.NewServer()
-	tododata.RegisterServerAPI(gRPCServer)
+	tododata.RegisterServerAPI(gRPCServer, todo)
 	return &App{
 		log:        log,
 		gRPCServer: gRPCServer,

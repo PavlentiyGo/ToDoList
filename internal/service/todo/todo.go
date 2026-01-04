@@ -15,7 +15,7 @@ type ToDo struct {
 }
 
 type Storage interface {
-	SaveTask(ctx context.Context, task domain.Task)
+	SaveTask(ctx context.Context, task domain.Task) (int64, error)
 	GetTask(ctx context.Context, id *int64) (map[int64]domain.Task, error)
 	DeleteTask(ctx context.Context, id int64) error
 	DoneTask(ctx context.Context, id int64) error
@@ -54,14 +54,12 @@ func (t *ToDo) CreateTask(ctx context.Context, title string, description string)
 		slog.String("op", op),
 	)
 	log.Info("creating task")
-
-	id, err := t.CreateTask(ctx, title, description)
+	id, err := t.Storage.SaveTask(ctx, domain.Task{Title: title, Description: description})
 	if err != nil {
-		log.Error("failed to create task")
+		log.Error("failed to create task", err)
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	log.Info("task was created")
-
 	return id, nil
 }
 func (t *ToDo) DeleteTask(ctx context.Context, id int64) error {
@@ -71,7 +69,7 @@ func (t *ToDo) DeleteTask(ctx context.Context, id int64) error {
 
 	log.Info("deleting task")
 
-	if err := t.DeleteTask(ctx, id); err != nil {
+	if err := t.Storage.DeleteTask(ctx, id); err != nil {
 		log.Error("failed to delete task")
 		if errors.Is(err, storage.ErrNoSuchTask) {
 			return storage.ErrNoSuchTask
@@ -87,7 +85,7 @@ func (t *ToDo) DoneTask(ctx context.Context, id int64) error {
 
 	log.Info("starting to done task")
 
-	if err := t.DoneTask(ctx, id); err != nil {
+	if err := t.Storage.DoneTask(ctx, id); err != nil {
 		log.Error("failed to done task")
 		if errors.Is(err, storage.ErrNoSuchTask) {
 			return storage.ErrNoSuchTask

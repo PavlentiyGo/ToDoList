@@ -24,8 +24,8 @@ type serverAPI struct {
 	todo ToDoData
 }
 
-func RegisterServerAPI(gRPC *grpc.Server) {
-	ssov1.RegisterToDoDataServer(gRPC, &serverAPI{})
+func RegisterServerAPI(gRPC *grpc.Server, todo ToDoData) {
+	ssov1.RegisterToDoDataServer(gRPC, &serverAPI{todo: todo})
 }
 
 func (s *serverAPI) GetTasks(ctx context.Context, request *ssov1.GetTasksRequest) (*ssov1.GetTasksResponse, error) {
@@ -67,10 +67,10 @@ func (s *serverAPI) CreateTask(ctx context.Context, request *ssov1.CreateTaskReq
 }
 
 func (s *serverAPI) DeleteTask(ctx context.Context, request *ssov1.DeleteTaskRequest) (*ssov1.DeleteTaskResponse, error) {
-	if err := validateDelete(request.GetTitle()); err != nil {
+	if err := validateDelete(request.GetId()); err != nil {
 		return nil, err
 	}
-	if err := s.todo.DeleteTask(ctx, request.GetTitle()); err != nil {
+	if err := s.todo.DeleteTask(ctx, request.GetId()); err != nil {
 		if errors.Is(err, storage.ErrNoSuchTask) {
 			return nil, status.Error(codes.InvalidArgument, "no such task")
 		}
