@@ -26,7 +26,7 @@ func main() {
 	application := app.New(context.Background(), log, 44044, 8081, pool)
 
 	go application.GRPCServer.MustRun()
-
+	go application.APIServer.Run()
 	stop := make(chan os.Signal)
 
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
@@ -34,6 +34,7 @@ func main() {
 	<-stop
 
 	application.GRPCServer.Stop()
+	application.APIServer.Stop()
 
 	log.Info("app stopped")
 

@@ -1,4 +1,4 @@
-package apiapp
+package tododata
 
 import "encoding/json"
 
@@ -8,12 +8,19 @@ type TaskDTO struct {
 }
 
 type ErrDTO struct {
-	err string
+	Err string
+}
+type TaskIdDTO struct {
+	Id string `json:"id"`
+}
+
+func NewTaskIdDTO(id string) TaskIdDTO {
+	return TaskIdDTO{Id: id}
 }
 
 func NewErrDTO(err error) ErrDTO {
 	return ErrDTO{
-		err: err.Error(),
+		Err: err.Error(),
 	}
 }
 

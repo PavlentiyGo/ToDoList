@@ -37,9 +37,9 @@ func (t *ToDo) GetTasks(ctx context.Context, id *int64) (map[int64]domain.Task, 
 	log.Info("getting tasks")
 
 	tasks, err := t.Storage.GetTask(ctx, id)
-	if err != nil && id != nil { // TODO fix id
+	if err != nil {
 		log.Error("failed to get task")
-		if errors.Is(err, storage.ErrNoSuchTask) {
+		if id != nil && errors.Is(err, storage.ErrNoSuchTask) {
 			return nil, storage.ErrNoSuchTask
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
